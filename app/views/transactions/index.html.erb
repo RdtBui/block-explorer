@@ -1,0 +1,19 @@
+<h1> NEAR Transfers</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Sender</th>
+      <th>Receiver</th>
+      <th>Deposit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr>
+        <td><%= transaction.sender %></td>
+        <td><%= transaction.receiver %></td>
+        <td><%= transaction.deposit %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
