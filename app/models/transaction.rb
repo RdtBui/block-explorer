@@ -8,5 +8,5 @@ class Transaction < ApplicationRecord
     validates :receiver, presence: true
     validates :gas_burnt, presence: true
     validates :deposit, presence: true
-    validates :success, prepend: true
+    validates :success, presence: true
 end
