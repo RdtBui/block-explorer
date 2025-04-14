@@ -31,6 +31,7 @@ My goal was to create an MVP with all the requirements and expectations met. See
 git clone https://github.com/RdtBui/block-explorer.git
 cd near-block-explorer
 bundle install
+rails db:migrate
 rails server
 ```
 
