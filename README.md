@@ -73,4 +73,5 @@ Transaction
 * Format `deposit` into a human-readable NEAR amount.
 * Add more relevant comments throughout the project.
 * Add pagination to the list of transactions.
+* Add more error handling.
 * Better UI.
