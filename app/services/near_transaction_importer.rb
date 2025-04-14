@@ -6,34 +6,36 @@ class NearTransactionImporter
   API_KEY = "SECRET_API_KEY" # Assume this is actual API key. In production, use ENV variable or hide in secrets.
 
   def self.call
-    new.call
-  end
-
-  def call
     response = fetch_transactions
-    return unless response.success?
+    return false unless response.success?
 
     parse_and_store(response.body)
   rescue Faraday::ConnectionFailed => e
     Rails.logger.error("Connection failed: #{e.message}")
+    false
   rescue JSON::ParserError => e
     Rails.logger.error("JSON parsing failed: #{e.message}")
+    false
   end
 
-  private
+  private_class_method
 
-  def fetch_transactions
-    connection = Faraday.new(url: BASE_URL) do |faraday|
+  def self.connection
+    # Memoize the Faraday connection to avoid creating a new connection for each request
+    @connection ||= Faraday.new(url: BASE_URL) do |faraday|
       faraday.request :url_encoded
       faraday.adapter Faraday.default_adapter
     end
+  end
 
+  # Fetches transactions from the mock API
+  def self.fetch_transactions
     connection.get("/near/transactions") do |request|
       request.params["api_key"] = API_KEY
     end
   end
 
-  def parse_and_store(body)
+  def self.parse_and_store(body)
     transactions = JSON.parse(body)
 
     transactions.each do |transaction|
@@ -54,13 +56,13 @@ class NearTransactionImporter
   end
 
   # Verifies if the action is a transfer and if the transaction already exists in the database.
-  def transfer_transactions?(transaction)
+  def self.transfer_transactions?(transaction)
     # Improvement: Considering there can be multiple actions, we can iterate through each action
     # and check if any of them is a transfer. But for simplicity of the take home, we'll assume there's only one action.
     transaction.dig("actions", 0, "type")&.downcase == "transfer" && !Transaction.exists?(tx_hash: transaction["tx_hash"])
   end
 
-  def extract_deposit(transaction)
+  def self.extract_deposit(transaction)
     # Improvement: Adjust for multiple actions
     transaction.dig("actions", 0, "data", "deposit")
   end
